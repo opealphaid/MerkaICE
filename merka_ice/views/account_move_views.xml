@@ -1,77 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vista de formulario de Factura de Proveedor con campos ICE -->
+    <!-- Vista de formulario de Factura de Compra con campos ICE -->
     <record id="view_move_form_ice" model="ir.ui.view">
         <field name="name">account.move.form.ice</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
 
-            <!-- Agregar columnas ICE después de price_subtotal en líneas de factura -->
-            <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='tax_ids']" position="before">
+            <!-- Agregar columnas ICE en las líneas de factura - después de price_unit -->
+            <xpath expr="//field[@name='invoice_line_ids']//field[@name='price_unit']" position="after">
                 <field name="ice_litros"
                        optional="show"
-                       column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"
-                       readonly="parent.state != 'draft'"/>
+                       readonly="parent.state != 'draft'"
+                       invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
                 <field name="ice_alicuota_especifica"
                        optional="hide"
-                       column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"
-                       readonly="1"/>
+                       readonly="1"
+                       invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
                 <field name="ice_alicuota_porcentual"
                        optional="hide"
-                       column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"
-                       readonly="1"/>
+                       readonly="1"
+                       invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
                 <field name="ice_monto_especifico"
                        optional="show"
-                       column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"
-                       readonly="1"/>
+                       readonly="1"
+                       invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
                 <field name="ice_monto_porcentual"
                        optional="show"
-                       column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"
-                       readonly="1"/>
+                       readonly="1"
+                       invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
                 <field name="ice_monto_total"
                        optional="show"
-                       column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"
                        readonly="1"
-                       sum="Total ICE"/>
+                       sum="Total ICE"
+                       invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
             </xpath>
 
-            <!-- Agregar columna Subtotal + ICE después del subtotal -->
-            <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='tax_ids']" position="after">
+            <!-- Modificar subtotal para incluir ICE -->
+            <xpath expr="//field[@name='invoice_line_ids']//field[@name='price_subtotal']" position="after">
                 <field name="price_subtotal_con_ice"
                        optional="show"
-                       column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"
-                       sum="Subtotal + ICE"/>
+                       sum="Subtotal + ICE"
+                       invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
             </xpath>
 
-            <!-- Agregar totales ICE después del amount_total -->
-            <xpath expr="//field[@name='amount_total']" position="after">
-                <field name="ice_total_especifico"
-                       widget="monetary"
-                       readonly="1"
-                       options="{'currency_field': 'currency_id'}"
-                       invisible="move_type not in ('in_invoice', 'in_refund') or ice_total_especifico == 0"
-                       string="Total ICE Específico"/>
-                <field name="ice_total_porcentual"
-                       widget="monetary"
-                       readonly="1"
-                       options="{'currency_field': 'currency_id'}"
-                       invisible="move_type not in ('in_invoice', 'in_refund') or ice_total_porcentual == 0"
-                       string="Total ICE Porcentual"/>
-                <field name="ice_total"
-                       widget="monetary"
-                       readonly="1"
-                       options="{'currency_field': 'currency_id'}"
-                       invisible="move_type not in ('in_invoice', 'in_refund') or ice_total == 0"
-                       string="Total ICE"
-                       class="oe_subtotal_footer_separator"/>
-                <field name="amount_total_con_ice"
-                       widget="monetary"
-                       readonly="1"
-                       options="{'currency_field': 'currency_id'}"
-                       invisible="move_type not in ('in_invoice', 'in_refund') or ice_total == 0"
-                       string="Total con ICE"
-                       class="oe_subtotal_footer_separator"/>
+            <!-- Agregar una nueva página/pestaña para totales ICE dentro del notebook -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Totales ICE"
+                      name="ice_totals_page"
+                      invisible="ice_total == 0 or move_type not in ('in_invoice', 'in_refund')">
+                    <group>
+                        <group string="Resumen ICE">
+                            <field name="ice_total_especifico"
+                                   widget="monetary"
+                                   readonly="1"
+                                   options="{'currency_field': 'currency_id'}"/>
+                            <field name="ice_total_porcentual"
+                                   widget="monetary"
+                                   readonly="1"
+                                   options="{'currency_field': 'currency_id'}"/>
+                            <field name="ice_total"
+                                   widget="monetary"
+                                   readonly="1"
+                                   options="{'currency_field': 'currency_id'}"/>
+                            <field name="amount_total_con_ice"
+                                   widget="monetary"
+                                   readonly="1"
+                                   options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <div class="alert alert-info" role="alert">
+                            <strong>Nota:</strong> El total con ICE incluye el monto total de la factura
+                            más el ICE específico y porcentual calculado en las líneas.
+                        </div>
+                    </group>
+                </page>
             </xpath>
 
         </field>

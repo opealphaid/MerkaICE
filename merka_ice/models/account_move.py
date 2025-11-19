@@ -4,7 +4,7 @@ from odoo import models, fields, api
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    # Campos de totales ICE en factura
+    # Campos de totales ICE
     ice_total_especifico = fields.Monetary(
         string='Total ICE Específico',
         compute='_compute_ice_totals',
@@ -36,10 +36,20 @@ class AccountMove(models.Model):
     @api.depends('invoice_line_ids.ice_monto_especifico',
                  'invoice_line_ids.ice_monto_porcentual',
                  'invoice_line_ids.ice_monto_total',
-                 'amount_total')
+                 'amount_total',
+                 'move_type')
     def _compute_ice_totals(self):
-        """Calcula los totales de ICE de la factura"""
+        """Calcula los totales de ICE de la factura de compra"""
         for move in self:
+            # Solo calcular ICE para facturas de compra
+            if move.move_type not in ['in_invoice', 'in_refund']:
+                move.ice_total_especifico = 0.0
+                move.ice_total_porcentual = 0.0
+                move.ice_total = 0.0
+                move.amount_total_con_ice = move.amount_total
+                continue
+
+            # Calcular totales de ICE
             ice_especifico = sum(move.invoice_line_ids.mapped('ice_monto_especifico'))
             ice_porcentual = sum(move.invoice_line_ids.mapped('ice_monto_porcentual'))
             ice_total = sum(move.invoice_line_ids.mapped('ice_monto_total'))

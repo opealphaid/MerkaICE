@@ -56,9 +56,9 @@ class AccountMoveLine(models.Model):
     )
 
     @api.onchange('product_id')
-    def _onchange_product_ice_invoice(self):
-        """Carga las alícuotas del producto al seleccionarlo en factura"""
-        if self.product_id and self.move_id.move_type in ('in_invoice', 'in_refund'):
+    def _onchange_product_ice(self):
+        """Carga las alícuotas del producto al seleccionarlo"""
+        if self.product_id and self.move_id.move_type in ['in_invoice', 'in_refund']:
             self.ice_alicuota_especifica = self.product_id.ice_alicuota_especifica
             self.ice_alicuota_porcentual = self.product_id.ice_alicuota_porcentual
             # Si tiene alícuota específica, inicializar litros con la cantidad
@@ -66,22 +66,23 @@ class AccountMoveLine(models.Model):
                 self.ice_litros = self.quantity
 
     @api.onchange('quantity')
-    def _onchange_quantity_ice_invoice(self):
+    def _onchange_quantity_ice(self):
         """Sincroniza litros con cantidad si hay alícuota específica"""
-        if self.move_id.move_type in ('in_invoice', 'in_refund'):
+        if self.move_id.move_type in ['in_invoice', 'in_refund']:
             if self.ice_alicuota_especifica > 0 and self.ice_litros == 0:
                 self.ice_litros = self.quantity
 
     @api.depends('ice_litros', 'ice_alicuota_especifica',
-                 'price_unit', 'quantity', 'ice_alicuota_porcentual')
+                 'price_unit', 'quantity', 'ice_alicuota_porcentual',
+                 'move_id.move_type')
     def _compute_ice_montos(self):
         """Calcula los montos de ICE (específico, porcentual y total)"""
         for line in self:
-            # Solo calcular para facturas de proveedor
-            if line.move_id.move_type not in ('in_invoice', 'in_refund'):
-                line.ice_monto_especifico = 0
-                line.ice_monto_porcentual = 0
-                line.ice_monto_total = 0
+            # Solo calcular ICE para facturas de compra
+            if line.move_id.move_type not in ['in_invoice', 'in_refund']:
+                line.ice_monto_especifico = 0.0
+                line.ice_monto_porcentual = 0.0
+                line.ice_monto_total = 0.0
                 continue
 
             # ICE Específico: litros × alícuota específica
@@ -100,13 +101,13 @@ class AccountMoveLine(models.Model):
     def _compute_price_subtotal_con_ice(self):
         """Calcula el subtotal incluyendo el ICE"""
         for line in self:
-            if line.move_id.move_type in ('in_invoice', 'in_refund'):
+            if line.move_id.move_type in ['in_invoice', 'in_refund']:
                 line.price_subtotal_con_ice = line.price_subtotal + line.ice_monto_total
             else:
                 line.price_subtotal_con_ice = line.price_subtotal
 
     @api.constrains('ice_litros')
-    def _check_ice_litros_invoice(self):
+    def _check_ice_litros(self):
         """Valida que los litros no sean negativos"""
         for line in self:
             if line.ice_litros < 0:
