@@ -10,34 +10,40 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Alícuotas ICE" name="ice_alicuotas">
                     <group>
-                        <group string="Alícuota Específica">
-                            <field name="ice_alicuota_especifica"
-                                   widget="monetary"
-                                   options="{'currency_field': 'currency_id'}"/>
+                        <group string="Información de Volumen">
+                            <label for="ice_volumen_por_unidad" string="Volumen por Unidad"/>
+                            <div class="o_row">
+                                <field name="ice_volumen_por_unidad" class="oe_inline"/>
+                                <field name="ice_uom_volumen" class="oe_inline" nolabel="1"/>
+                            </div>
                             <div class="text-muted" colspan="2">
-                                Monto fijo en Bs por cada litro vendido.<br/>
-                                <strong>Ejemplo:</strong> Si configuras 0.51 Bs/litro y vendes 10 litros,
-                                el ICE será 5.10 Bs (10 × 0.51)
+                                Volumen que contiene UNA unidad del producto.<br/>
+                                <strong>Ejemplos:</strong><br/>
+                                • Botella 1.5L → 1.5 Litros (L)<br/>
+                                • Lata 355mL → 355 Mililitros (mL)<br/>
+                                • Botella 750mL → 750 Mililitros (mL)
+                            </div>
+                        </group>
+                        <group>
+                            <field name="ice_aplica_alicuota" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Alícuota Específica">
+                            <field name="ice_alicuota_especifica"/>
+                            <div class="text-muted" colspan="2">
+                                Monto fijo en Bs por cada LITRO.<br/>
+                                <strong>Ejemplo:</strong> 0.51 significa 0.51 Bs por cada litro
                             </div>
                         </group>
                         <group string="Alícuota Porcentual">
                             <field name="ice_alicuota_porcentual"/>
                             <div class="text-muted" colspan="2">
-                                Porcentaje aplicado sobre el precio de venta.<br/>
-                                <strong>Ejemplo:</strong> Si configuras 1% y el precio es 100 Bs,
-                                el ICE será 1 Bs (100 × 1%)
+                                Porcentaje aplicado sobre el precio.<br/>
+                                <strong>Ejemplo:</strong> 1 significa 1%
                             </div>
                         </group>
                     </group>
-                    <group>
-                        <group>
-                            <field name="ice_aplica_alicuota" readonly="1"/>
-                        </group>
-                    </group>
-                    <div class="alert alert-info" role="alert" style="margin: 16px;">
-                        <strong>Nota:</strong> Puedes configurar ambas alícuotas simultáneamente.
-                        El ICE total será la suma de ambos cálculos.
-                    </div>
                 </page>
             </xpath>
         </field>
@@ -51,6 +57,8 @@
         <field name="arch" type="xml">
             <!-- Agregar campos después de la columna de precio de lista -->
             <xpath expr="//field[@name='list_price']" position="after">
+                <field name="ice_volumen_por_unidad" optional="hide" string="Volumen"/>
+                <field name="ice_uom_volumen" optional="hide" string="UdM Vol."/>
                 <field name="ice_aplica_alicuota" optional="show" string="Aplica ICE"/>
                 <field name="ice_alicuota_especifica" optional="hide" string="Alíc. Esp. (Bs/L)"/>
                 <field name="ice_alicuota_porcentual" optional="hide" string="Alíc. % (%)"/>

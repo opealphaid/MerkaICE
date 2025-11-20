@@ -26,25 +26,27 @@ class PurchaseOrder(models.Model):
         help='Suma total de todos los ICE (específico + porcentual)'
     )
 
-    amount_total_con_ice = fields.Monetary(
-        string='Total con ICE',
-        compute='_compute_ice_totals',
-        store=True,
-        help='Monto total de la orden incluyendo ICE'
-    )
-
     @api.depends('order_line.ice_monto_especifico',
                  'order_line.ice_monto_porcentual',
-                 'order_line.ice_monto_total',
-                 'amount_total')
+                 'order_line.ice_monto_total')
     def _compute_ice_totals(self):
         """Calcula los totales de ICE de la orden de compra"""
         for order in self:
             ice_especifico = sum(order.order_line.mapped('ice_monto_especifico'))
             ice_porcentual = sum(order.order_line.mapped('ice_monto_porcentual'))
-            ice_total = sum(order.order_line.mapped('ice_monto_total'))
+            ice_total = ice_especifico + ice_porcentual
 
             order.ice_total_especifico = ice_especifico
             order.ice_total_porcentual = ice_porcentual
             order.ice_total = ice_total
-            order.amount_total_con_ice = order.amount_total + ice_total
+
+    @api.depends('order_line.price_total', 'ice_total')
+    def _compute_amount(self):
+        # Primero ejecutamos el cálculo original de Odoo
+        super()._compute_amount()
+
+        # Luego sumamos el ICE al total
+        for order in self:
+            # amount_untaxed y amount_tax ya fueron calculados por super()
+            # Solo sumamos ICE al total
+            order.amount_total = order.amount_untaxed + order.amount_tax + order.ice_total

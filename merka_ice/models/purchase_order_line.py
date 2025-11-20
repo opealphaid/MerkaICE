@@ -7,23 +7,29 @@ class PurchaseOrderLine(models.Model):
 
     # Campos ICE
     ice_litros = fields.Float(
-        string='Litros',
+        string='Litros Totales',
         digits=(12, 3),
-        default=0.0,
-        help='Cantidad en litros para calcular alícuota específica'
+        compute='_compute_ice_litros',
+        store=True,
+        readonly=False,
+        help='Litros totales (cantidad × litros por unidad del producto)'
     )
 
     ice_alicuota_especifica = fields.Float(
         string='Alíc. Específica (Bs/L)',
         digits=(12, 2),
-        readonly=True,
+        compute='_compute_ice_alicuotas',
+        store=True,
+        readonly=False,
         help='Alícuota específica del producto'
     )
 
     ice_alicuota_porcentual = fields.Float(
         string='Alíc. Porcentual (%)',
         digits=(12, 2),
-        readonly=True,
+        compute='_compute_ice_alicuotas',
+        store=True,
+        readonly=False,
         help='Alícuota porcentual del producto'
     )
 
@@ -48,28 +54,30 @@ class PurchaseOrderLine(models.Model):
         help='Suma de ICE específico + ICE porcentual'
     )
 
-    price_subtotal_con_ice = fields.Monetary(
-        string='Subtotal + ICE',
-        compute='_compute_price_subtotal_con_ice',
-        store=True,
-        help='Subtotal de la línea más el ICE total'
-    )
+    @api.depends('product_id', 'product_qty')
+    def _compute_ice_alicuotas(self):
+        """Carga las alícuotas del producto automáticamente"""
+        for line in self:
+            if line.product_id:
+                line.ice_alicuota_especifica = line.product_id.ice_alicuota_especifica
+                line.ice_alicuota_porcentual = line.product_id.ice_alicuota_porcentual
+                # Calcular litros totales usando el método de conversión del producto
+                litros_por_unidad = line.product_id._get_ice_litros_por_unidad()
+                line.ice_litros = line.product_qty * litros_por_unidad
+            else:
+                line.ice_alicuota_especifica = 0.0
+                line.ice_alicuota_porcentual = 0.0
+                line.ice_litros = 0.0
 
-    @api.onchange('product_id')
-    def _onchange_product_ice(self):
-        """Carga las alícuotas del producto al seleccionarlo"""
-        if self.product_id:
-            self.ice_alicuota_especifica = self.product_id.ice_alicuota_especifica
-            self.ice_alicuota_porcentual = self.product_id.ice_alicuota_porcentual
-            # Si tiene alícuota específica, inicializar litros con la cantidad
-            if self.ice_alicuota_especifica > 0 and self.ice_litros == 0:
-                self.ice_litros = self.product_qty
-
-    @api.onchange('product_qty')
-    def _onchange_product_qty_ice(self):
-        """Sincroniza litros con cantidad si hay alícuota específica"""
-        if self.ice_alicuota_especifica > 0 and self.ice_litros == 0:
-            self.ice_litros = self.product_qty
+    @api.depends('product_qty', 'product_id')
+    def _compute_ice_litros(self):
+        """Calcula litros totales basado en cantidad × volumen convertido a litros"""
+        for line in self:
+            if line.product_id and line.product_id.ice_volumen_por_unidad > 0:
+                litros_por_unidad = line.product_id._get_ice_litros_por_unidad()
+                line.ice_litros = line.product_qty * litros_por_unidad
+            else:
+                line.ice_litros = 0.0
 
     @api.depends('ice_litros', 'ice_alicuota_especifica',
                  'price_unit', 'product_qty', 'ice_alicuota_porcentual')
@@ -88,11 +96,30 @@ class PurchaseOrderLine(models.Model):
             line.ice_monto_porcentual = ice_porcentual
             line.ice_monto_total = ice_especifico + ice_porcentual
 
-    @api.depends('price_subtotal', 'ice_monto_total')
-    def _compute_price_subtotal_con_ice(self):
-        """Calcula el subtotal incluyendo el ICE"""
+    @api.depends('product_qty', 'price_unit', 'taxes_id', 'ice_monto_total', 'discount')
+    def _compute_amount(self):
+        """Sobrescribe completamente el cálculo para incluir ICE en price_subtotal"""
         for line in self:
-            line.price_subtotal_con_ice = line.price_subtotal + line.ice_monto_total
+            # Calcular el precio unitario efectivo (incluyendo ICE distribuido)
+            price_unit_con_ice = line.price_unit
+            if line.product_qty and line.ice_monto_total:
+                price_unit_con_ice = line.price_unit + (line.ice_monto_total / line.product_qty)
+
+            # Calcular impuestos con el precio que incluye ICE
+            taxes = line.taxes_id.compute_all(
+                price_unit_con_ice,
+                line.order_id.currency_id,
+                line.product_qty,
+                product=line.product_id,
+                partner=line.order_id.partner_id
+            )
+
+            # Actualizar los campos con los valores que incluyen ICE
+            line.update({
+                'price_tax': sum(t.get('amount', 0.0) for t in taxes.get('taxes', [])),
+                'price_total': taxes['total_included'],
+                'price_subtotal': taxes['total_excluded'],
+            })
 
     @api.constrains('ice_litros')
     def _check_ice_litros(self):
@@ -102,3 +129,13 @@ class PurchaseOrderLine(models.Model):
                 raise ValidationError(
                     'La cantidad de litros no puede ser negativa.'
                 )
+
+    def _prepare_account_move_line(self, move=False):
+        """Preparar datos de línea de factura incluyendo campos ICE"""
+        res = super()._prepare_account_move_line(move=move)
+        res.update({
+            'ice_litros': self.ice_litros,
+            'ice_alicuota_especifica': self.ice_alicuota_especifica,
+            'ice_alicuota_porcentual': self.ice_alicuota_porcentual,
+        })
+        return res
