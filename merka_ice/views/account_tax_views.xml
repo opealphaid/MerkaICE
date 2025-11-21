@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de formulario de impuestos con campos ICE -->
+    <record id="account_tax_form_view_ice" model="ir.ui.view">
+        <field name="name">account.tax.form.ice</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Agregar campos ICE después del campo amount -->
+            <xpath expr="//field[@name='amount']" position="after">
+                <field name="ice_type"/>
+                <field name="ice_alicuota_especifica"
+                       invisible="ice_type != 'especifico'"
+                       required="ice_type == 'especifico'"/>
+
+                <div class="alert alert-info"
+                     colspan="2"
+                     invisible="ice_type == 'none'">
+                    <strong>Configuración ICE:</strong><br/>
+                    <span invisible="ice_type != 'especifico'">
+                        • <strong>ICE Específico:</strong> Se calcula según los litros del producto.<br/>
+                        • El campo "Tipo de Cálculo" debe ser "Código Python".<br/>
+                        • Active "Incluir en Base" para que el IVA se calcule sobre (Precio + ICE).
+                    </span>
+                    <span invisible="ice_type != 'porcentual'">
+                        • <strong>ICE Porcentual:</strong> Se calcula como un % del precio.<br/>
+                        • El campo "Tipo de Cálculo" debe ser "Porcentaje del Precio".<br/>
+                        • Active "Incluir en Base" para que el IVA se calcule sobre (Precio + ICE).
+                    </span>
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Vista de árbol de impuestos con indicador ICE -->
+    <record id="account_tax_tree_view_ice" model="ir.ui.view">
+        <field name="name">account.tax.tree.ice</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='description']" position="after">
+                <field name="ice_type" optional="show"/>
+                <field name="ice_alicuota_especifica" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

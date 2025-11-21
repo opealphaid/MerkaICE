@@ -1,5 +1,5 @@
 {
-    'name': 'ICE - Alícuotas',
+    'name': 'ICE - Alícuotas V2',
     'version': '18.0.1.0.0',
     'author': 'Alpha Systems S.R.L',
     'website': 'https://www.alphasystems.com.bo',
@@ -10,11 +10,10 @@
         'account',
     ],
     "data": [
-        "security/ir.model.access.csv",
+        'data/ice_tax_data.xml',
+        'security/ir.model.access.csv',
         'views/product_template_views.xml',
-        'views/purchase_order_views.xml',
-        'views/account_move_views.xml',
-        'report/purchase_order_report.xml',
+        'views/account_tax_views.xml',
     ],
     "installable": True,
     "application": False,

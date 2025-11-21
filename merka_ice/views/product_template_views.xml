@@ -6,45 +6,39 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
-            <!-- Agregar página de ICE después de la página de Ventas -->
-            <xpath expr="//notebook" position="inside">
-                <page string="Alícuotas ICE" name="ice_alicuotas">
+
+            <!-- Agregar campos de volumen en la página de Compras -->
+            <xpath expr="//page[@name='purchase']" position="inside">
+                <group string="Información de Volumen para ICE">
                     <group>
-                        <group string="Información de Volumen">
-                            <label for="ice_volumen_por_unidad" string="Volumen por Unidad"/>
-                            <div class="o_row">
-                                <field name="ice_volumen_por_unidad" class="oe_inline"/>
-                                <field name="ice_uom_volumen" class="oe_inline" nolabel="1"/>
-                            </div>
-                            <div class="text-muted" colspan="2">
-                                Volumen que contiene UNA unidad del producto.<br/>
-                                <strong>Ejemplos:</strong><br/>
-                                • Botella 1.5L → 1.5 Litros (L)<br/>
-                                • Lata 355mL → 355 Mililitros (mL)<br/>
-                                • Botella 750mL → 750 Mililitros (mL)
-                            </div>
-                        </group>
-                        <group>
-                            <field name="ice_aplica_alicuota" readonly="1"/>
-                        </group>
+                        <label for="ice_volumen_por_unidad" string="Volumen por Unidad"/>
+                        <div class="o_row">
+                            <field name="ice_volumen_por_unidad" class="oe_inline"/>
+                            <field name="ice_uom_volumen" class="oe_inline" nolabel="1"/>
+                        </div>
+                        <div class="text-muted" colspan="2">
+                            <strong>Ejemplos:</strong><br/>
+                            • Botella 2L → 2 Litros (L)<br/>
+                            • Lata 355mL → 355 Mililitros (mL)<br/>
+                            • Botella 750mL → 750 Mililitros (mL)
+                        </div>
                     </group>
                     <group>
-                        <group string="Alícuota Específica">
-                            <field name="ice_alicuota_especifica"/>
-                            <div class="text-muted" colspan="2">
-                                Monto fijo en Bs por cada LITRO.<br/>
-                                <strong>Ejemplo:</strong> 0.51 significa 0.51 Bs por cada litro
-                            </div>
-                        </group>
-                        <group string="Alícuota Porcentual">
-                            <field name="ice_alicuota_porcentual"/>
-                            <div class="text-muted" colspan="2">
-                                Porcentaje aplicado sobre el precio.<br/>
-                                <strong>Ejemplo:</strong> 1 significa 1%
-                            </div>
-                        </group>
+                        <field name="ice_aplica" readonly="1"/>
+                        <div class="alert alert-info" colspan="2" invisible="not ice_aplica">
+                            <i class="fa fa-info-circle"/> Este producto tiene impuestos ICE configurados.
+                        </div>
                     </group>
-                </page>
+                </group>
+            </xpath>
+
+            <!-- Agregar ayuda contextual en el campo de impuestos de compra -->
+            <xpath expr="//field[@name='supplier_taxes_id']" position="after">
+                <div class="alert alert-warning" colspan="2" invisible="ice_volumen_por_unidad == 0 or ice_aplica">
+                    <i class="fa fa-exclamation-triangle"/>
+                    <strong>Recordatorio:</strong> Este producto tiene volumen configurado pero no tiene impuestos ICE asignados.
+                    <br/>Agrega los impuestos ICE correspondientes desde el campo "Impuestos de Proveedor" arriba.
+                </div>
             </xpath>
         </field>
     </record>
@@ -55,13 +49,10 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="arch" type="xml">
-            <!-- Agregar campos después de la columna de precio de lista -->
             <xpath expr="//field[@name='list_price']" position="after">
                 <field name="ice_volumen_por_unidad" optional="hide" string="Volumen"/>
                 <field name="ice_uom_volumen" optional="hide" string="UdM Vol."/>
-                <field name="ice_aplica_alicuota" optional="show" string="Aplica ICE"/>
-                <field name="ice_alicuota_especifica" optional="hide" string="Alíc. Esp. (Bs/L)"/>
-                <field name="ice_alicuota_porcentual" optional="hide" string="Alíc. % (%)"/>
+                <field name="ice_aplica" optional="show" string="Tiene ICE"/>
             </xpath>
         </field>
     </record>

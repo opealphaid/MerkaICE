@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================ -->
+        <!-- GRUPO DE IMPUESTOS ICE                      -->
+        <!-- ============================================ -->
+        <record id="tax_group_ice" model="account.tax.group">
+            <field name="name">ICE - Impuesto a Consumos Específicos</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- IMPUESTOS ICE ESPECÍFICO (Bs/Litro)         -->
+        <!-- ============================================ -->
+
+        <!-- ICE Bebidas Energizantes: 5.74 Bs/L -->
+        <record id="tax_ice_esp_bebidas_energizantes" model="account.tax">
+            <field name="name">ICE Esp. Bebidas Energizantes (5.74 Bs/L)</field>
+            <field name="description">ICE-ESP-5.74</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="country_id" ref="base.bo"/>
+            <field name="price_include" eval="False"/>
+            <field name="include_base_amount" eval="True"/>
+            <field name="sequence">1</field>
+            <field name="tax_group_id" ref="tax_group_ice"/>
+            <field name="ice_type">especifico</field>
+            <field name="ice_alicuota_especifica">5.74</field>
+        </record>
+
+        <!-- ICE Bebidas no alcohólicas: 0.51 Bs/L -->
+        <record id="tax_ice_esp_bebidas_no_alcoholicas" model="account.tax">
+            <field name="name">ICE Esp. Bebidas no alcohólicas (0.51 Bs/L)</field>
+            <field name="description">ICE-ESP-0.51</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="country_id" ref="base.bo"/>
+            <field name="price_include" eval="False"/>
+            <field name="include_base_amount" eval="True"/>
+            <field name="sequence">1</field>
+            <field name="tax_group_id" ref="tax_group_ice"/>
+            <field name="ice_type">especifico</field>
+            <field name="ice_alicuota_especifica">0.51</field>
+        </record>
+
+        <!-- ICE Cerveza: 4.30 Bs/L -->
+        <record id="tax_ice_esp_cerveza" model="account.tax">
+            <field name="name">ICE Esp. Cerveza (4.30 Bs/L)</field>
+            <field name="description">ICE-ESP-4.30</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="country_id" ref="base.bo"/>
+            <field name="price_include" eval="False"/>
+            <field name="include_base_amount" eval="True"/>
+            <field name="sequence">1</field>
+            <field name="tax_group_id" ref="tax_group_ice"/>
+            <field name="ice_type">especifico</field>
+            <field name="ice_alicuota_especifica">4.30</field>
+        </record>
+
+        <!-- ICE Vinos: 3.94 Bs/L -->
+        <record id="tax_ice_esp_vinos" model="account.tax">
+            <field name="name">ICE Esp. Vinos (3.94 Bs/L)</field>
+            <field name="description">ICE-ESP-3.94</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="country_id" ref="base.bo"/>
+            <field name="price_include" eval="False"/>
+            <field name="include_base_amount" eval="True"/>
+            <field name="sequence">1</field>
+            <field name="tax_group_id" ref="tax_group_ice"/>
+            <field name="ice_type">especifico</field>
+            <field name="ice_alicuota_especifica">3.94</field>
+        </record>
+
+        <!-- ICE Whisky: 16.49 Bs/L -->
+        <record id="tax_ice_esp_whisky" model="account.tax">
+            <field name="name">ICE Esp. Whisky (16.49 Bs/L)</field>
+            <field name="description">ICE-ESP-16.49</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="country_id" ref="base.bo"/>
+            <field name="price_include" eval="False"/>
+            <field name="include_base_amount" eval="True"/>
+            <field name="sequence">1</field>
+            <field name="tax_group_id" ref="tax_group_ice"/>
+            <field name="ice_type">especifico</field>
+            <field name="ice_alicuota_especifica">16.49</field>
+        </record>
+
+        <!-- ICE Alcohol etílico: 1.95 Bs/L -->
+        <record id="tax_ice_esp_alcohol_etilico" model="account.tax">
+            <field name="name">ICE Esp. Alcohol Etílico (1.95 Bs/L)</field>
+            <field name="description">ICE-ESP-1.95</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="country_id" ref="base.bo"/>
+            <field name="price_include" eval="False"/>
+            <field name="include_base_amount" eval="True"/>
+            <field name="sequence">1</field>
+            <field name="tax_group_id" ref="tax_group_ice"/>
+            <field name="ice_type">especifico</field>
+            <field name="ice_alicuota_especifica">1.95</field>
+        </record>
+
+        <!-- ICE Chicha de maíz: 1.02 Bs/L -->
+        <record id="tax_ice_esp_chicha_maiz" model="account.tax">
+            <field name="name">ICE Esp. Chicha de Maíz (1.02 Bs/L)</field>
+            <field name="description">ICE-ESP-1.02</field>
+            <field name="amount_type">percent</field>
+            <field name="amount">0</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="country_id" ref="base.bo"/>
+            <field name="price_include" eval="False"/>
+            <field name="include_base_amount" eval="True"/>
+            <field name="sequence">1</field>
+            <field name="tax_group_id" ref="tax_group_ice"/>
+            <field name="ice_type">especifico</field>
+            <field name="ice_alicuota_especifica">1.02</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- IMPUESTOS ICE PORCENTUAL (%)                -->
+        <!-- ============================================ -->
+
+        <!-- ICE Porcentual 1% -->
+        <record id="tax_ice_porc_1" model="account.tax">
+            <field name="name">ICE Porcentual 1%</field>
+            <field name="description">ICE-1%</field>
+            <field name="amount">1</field>
+            <field name="amount_type">percent</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="country_id" ref="base.bo"/>
+            <field name="price_include" eval="False"/>
+            <field name="include_base_amount" eval="True"/>
+            <field name="sequence">2</field>
+            <field name="tax_group_id" ref="tax_group_ice"/>
+            <field name="ice_type">porcentual</field>
+        </record>
+
+        <!-- ICE Porcentual 5% -->
+        <record id="tax_ice_porc_5" model="account.tax">
+            <field name="name">ICE Porcentual 5%</field>
+            <field name="description">ICE-5%</field>
+            <field name="amount">5</field>
+            <field name="amount_type">percent</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="country_id" ref="base.bo"/>
+            <field name="price_include" eval="False"/>
+            <field name="include_base_amount" eval="True"/>
+            <field name="sequence">2</field>
+            <field name="tax_group_id" ref="tax_group_ice"/>
+            <field name="ice_type">porcentual</field>
+        </record>
+
+        <!-- ICE Porcentual 10% -->
+        <record id="tax_ice_porc_10" model="account.tax">
+            <field name="name">ICE Porcentual 10%</field>
+            <field name="description">ICE-10%</field>
+            <field name="amount">10</field>
+            <field name="amount_type">percent</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="country_id" ref="base.bo"/>
+            <field name="price_include" eval="False"/>
+            <field name="include_base_amount" eval="True"/>
+            <field name="sequence">2</field>
+            <field name="tax_group_id" ref="tax_group_ice"/>
+            <field name="ice_type">porcentual</field>
+        </record>
+
+        <!-- ICE Porcentual 50% (Tabacos) -->
+        <record id="tax_ice_porc_50" model="account.tax">
+            <field name="name">ICE Porcentual 50% (Tabacos)</field>
+            <field name="description">ICE-50%</field>
+            <field name="amount">50</field>
+            <field name="amount_type">percent</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="country_id" ref="base.bo"/>
+            <field name="price_include" eval="False"/>
+            <field name="include_base_amount" eval="True"/>
+            <field name="sequence">2</field>
+            <field name="tax_group_id" ref="tax_group_ice"/>
+            <field name="ice_type">porcentual</field>
+        </record>
+
+    </data>
+</odoo>
